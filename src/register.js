@@ -2,10 +2,6 @@ import React from 'react';
 import { STORY_CHANGED } from '@storybook/core-events';
 import addons from '@storybook/addons';
 import Prism from 'prismjs';
-import 'prismjs/components/prism-typescript.js';
-import 'prismjs/components/prism-sass.js';
-
-import 'prismjs/themes/prism.css';
 
 class Code extends React.Component {
   constructor(props, context) {
@@ -39,7 +35,7 @@ class Code extends React.Component {
       active ?
       <div>{
         code ?
-          <pre>
+          <pre className={`language-${type}`}>
             <code>
               <div dangerouslySetInnerHTML={{__html: code}} />
             </code>
@@ -61,6 +57,7 @@ class Code extends React.Component {
 }
 
 const registerTab  = ({label, type}) => {
+  import(`prismjs/components/prism-${type}.js`);
   addons.register(`soft/code/add_${type}`, (api) => {
     addons.addPanel(`soft/${type}/panel`, {
       title: label,
@@ -76,7 +73,9 @@ const registerTab  = ({label, type}) => {
     })
   })
 }
-export const setTabs = (tabs) => {
+
+export const configure = ({theme = 'prism', tabs = []}) => {
+  import(`prismjs/themes/${theme}.css`);
   const tabsToRender = [].concat(tabs);
   tabsToRender.forEach((t) => registerTab(t));
 }
