@@ -1,6 +1,6 @@
 {
-  "name": "storybook-addon-code",
-  "version": "0.1.3",
+  "name": "@jfrk/storybook-addon-code",
+  "version": "1.0.0",
   "description": "A storybook addon that display any type of code highlighted with Prismjs",
   "keywords": [
     "addon",
@@ -20,7 +20,7 @@
     "build": "npm run clean & babel -d ./dist ./src",
     "build:watch": "babel --watch -d ./dist ./src",
     "clean": "rm -rf ./dist",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "author": "SoftVision",
   "license": "MIT",
