@@ -1,4 +1,5 @@
 import React from 'react';
+import { STORY_CHANGED } from '@storybook/core-events';
 import addons from '@storybook/addons';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-typescript.js';
@@ -14,6 +15,10 @@ class Code extends React.Component {
     this.onSelectTab = this.onSelectTab.bind(this);
   }
 
+  onStoryChange = () => {
+    this.onSelectTab('');
+  }
+
   onSelectTab({code, type}) {
     const formattedCode = type && code && Prism.highlight(code, Prism.languages[type]);
 
@@ -24,17 +29,16 @@ class Code extends React.Component {
     const { channel, api } = this.props;
     channel.on(this.channelName, this.onSelectTab);
 
-    this.stopListeningOnStory = api.onStory(() => {
-      this.onSelectTab('');
-    });
+    api.on(STORY_CHANGED, this.onStoryChange);
   }
 
   render() {
     const { code } = this.state;
-    const { type } = this.props;
+    const { type, active } = this.props;
     return (
-      <div>{ 
-        code ? 
+      active ?
+      <div>{
+        code ?
           <pre>
             <code>
               <div dangerouslySetInnerHTML={{__html: code}} />
@@ -42,14 +46,13 @@ class Code extends React.Component {
           </pre> :
           <p> No {type} code Found </p>
         }
-      </div>
+      </div> :
+      null
     );
   }
 
   componentWillUnmount() {
-    if(this.stopListeningOnStory) {
-      this.stopListeningOnStory();
-    }
+    api.off(STORY_CHANGED, this.onStoryChange);
 
     this.unmounted = true;
     const { channel, api } = this.props;
@@ -61,8 +64,14 @@ const registerTab  = ({label, type}) => {
   addons.register(`soft/code/add_${type}`, (api) => {
     addons.addPanel(`soft/${type}/panel`, {
       title: label,
-      render: () => (
-        <Code channel={addons.getChannel()} api={api} type={type} />
+      render: ({active, key}) => (
+        <Code
+          active={active}
+          api={api}
+          channel={addons.getChannel()}
+          key={key}
+          type={type}
+        />
       )
     })
   })
